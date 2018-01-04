@@ -6,7 +6,7 @@ def local_to_global(vertices, connectivity_matrix):
     :return dict:
     """
 
-    local_to_global = {}
+    local_to_global_map = {}
     visited_vertices = {}
     visited_edges = {}
     global_dof_number = 0
@@ -31,6 +31,6 @@ def local_to_global(vertices, connectivity_matrix):
                 global_dof_number += 1
             else:
                 local_indices.append(visited_edges[oriented_edge])
-        local_to_global[k] = local_indices
+        local_to_global_map[k] = local_indices
 
-    return local_to_global
+    return local_to_global_map
