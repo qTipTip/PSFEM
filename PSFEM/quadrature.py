@@ -4,7 +4,7 @@ from SSplines import area, sub_triangles
 def midpoint_rule(integrand, vertices):
     """
     Computes a numerical approximation to the integral over the triangle delineated by supplied vertices, using
-    a two dimensional mid-point rule. Should integrate quadratic functions exactly.
+    a two dimensional mid-point rule. Integrates quadratic functions exactly.
     :param callable integrand: function to integrate
     :param np.ndarray vertices: vertices of triangle
     :return: numerical approximation to integral.
