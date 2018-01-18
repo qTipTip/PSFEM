@@ -1,13 +1,7 @@
 import numpy as np
-import matplotlib
-from scipy.spatial import Delaunay
-matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from SSplines import SplineSpace, sample_triangle
+from SSplines import SplineSpace
 
 from PSFEM.helper_functions import local_to_global
-from PSFEM.mesh import Mesh
 
 
 class CompositeSpline(object):
