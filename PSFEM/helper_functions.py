@@ -10,7 +10,7 @@ def local_to_global(vertices, connectivity_matrix):
     visited_vertices = {}
     visited_edges = {}
     global_dof_number = 0
-
+    edge_dofs = []
     for k, t in enumerate(connectivity_matrix):
 
         edges = [tuple([int(t[i]), int(t[(i + 1) % 3])]) for i in range(3)]
@@ -28,9 +28,10 @@ def local_to_global(vertices, connectivity_matrix):
             if oriented_edge not in visited_edges:
                 local_indices.append(global_dof_number)
                 visited_edges[oriented_edge] = global_dof_number
+                edge_dofs.append(global_dof_number)
                 global_dof_number += 1
             else:
                 local_indices.append(visited_edges[oriented_edge])
         local_to_global_map[k] = local_indices
 
-    return local_to_global_map
+    return local_to_global_map, edge_dofs
