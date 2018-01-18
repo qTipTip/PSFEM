@@ -106,6 +106,8 @@ class Mesh(object):
 
         self.int_vertices = [vertex_id for vertex_id in range(len(self.vertices)) if vertex_id not in self.bnd_vertices]
 
+        self.edges = self.bnd_edges + self.int_edges
+
 if __name__ == '__main__':
 
     vertices = np.array([
