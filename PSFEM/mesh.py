@@ -33,10 +33,10 @@ class Mesh(object):
         pass
 
     def boundary_vertices(self):
-        pass
+        return self.bnd_vertices
 
     def boundary_edges(self):
-        pass
+        return self.bnd_edges
 
     def get_edge(self, edge_id):
         edge_vertices = self.edge_vertices[edge_id]
@@ -92,7 +92,14 @@ class Mesh(object):
                              for i, edge_ in enumerate(self.edge_vertices)
                              for edge in (edge_, reversed(edge_))}
 
+        # list of boundary edges
+        self.bnd_edges = sorted([self.edge_indices[tuple(edge)] for edge in self.edge_vertices
+                          if len(self.adjacent_triangles(self.edge_indices[tuple(edge)])) == 1])
 
+        # list of boundary vertices
+        self.bnd_vertices = sorted(list(set([vertex
+                             for edge in self.bnd_edges
+                             for vertex in self.edge_vertices[edge]])))
 
 if __name__ == '__main__':
 
@@ -109,3 +116,7 @@ if __name__ == '__main__':
     ])
 
     M = Mesh(vertices, triangles)
+
+    print(M.edge_vertices)
+    print(M.bnd_edges)
+    print(M.bnd_vertices)
