@@ -20,17 +20,11 @@ class Mesh(object):
 
         self._generate_data()
 
-    def vertex_to_triangles(self, vertex_id):
-        pass
-
-    def edge_to_triangles(self, edge_id):
-        pass
-
     def interior_vertices(self):
-        pass
+        return self.int_vertices
 
     def interior_edges(self):
-        pass
+        return self.int_edges
 
     def boundary_vertices(self):
         return self.bnd_vertices
@@ -45,13 +39,16 @@ class Mesh(object):
         return edge_coords
 
     def get_vertex(self, vertex_id):
-        pass
+        return self.vertices[vertex_id]
 
     def get_edge_id(self, edge):
-        pass
+        return self.edge_indices[edge]
 
     def get_vertex_id(self, vertex):
-        pass
+        for k in range(len(self.vertices)):
+            if vertex == self.vertices[k]
+                return k
+        return -1
 
     def incident_triangles(self, vertex_index):
         """
@@ -107,6 +104,7 @@ class Mesh(object):
         self.int_vertices = [vertex_id for vertex_id in range(len(self.vertices)) if vertex_id not in self.bnd_vertices]
 
         self.edges = self.bnd_edges + self.int_edges
+
 
 if __name__ == '__main__':
 
