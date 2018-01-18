@@ -131,38 +131,3 @@ class CompositeSplineSpace(object):
         return sum([c*b for c, b in zip(coefficients, self.basis)])
 
 
-if __name__ == '__main__':
-
-    vertices = np.array([
-        [x, y]
-        for x in np.linspace(0, 1, 3)
-        for y in np.linspace(0, 1, 3)
-    ])
-
-    triangles = Delaunay(vertices).simplices
-
-    M = Mesh(vertices, triangles)
-    C = CompositeSplineSpace(M)
-
-    points = [sample_triangle(vertices[triangles[k]], 10) for k in range(len(triangles))]
-    '''
-    for basis in C.basis:
-        fig = plt.figure()
-        axs = Axes3D(fig)
-        axs.set_zlim3d(-0.1, 1)
-        for k in range(len(triangles)):
-            p = points[k]
-            z = basis(p, k)
-            axs.plot_trisurf(p[:, 0], p[:, 1], z)
-        plt.show()
-    '''
-
-    fig = plt.figure()
-    axs = Axes3D(fig)
-
-    f = C.function(np.random.randint(-1, 2, C.dimension))
-
-    for k, p in enumerate(points):
-        z = f(p, k)
-        axs.plot_trisurf(p[:, 0], p[:, 1], z)
-    plt.show()
