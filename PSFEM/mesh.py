@@ -13,3 +13,21 @@ class Mesh(object):
 
         self.vertices = vertices
         self.triangles = connectivity_matrix
+
+    def vertex_to_triangles(self, vertex_id):
+        pass
+
+    def edge_to_triangles(self, edge_id):
+        pass
+
+    def interior_vertices(self):
+        pass
+
+    def interior_edges(self):
+        pass
+
+    def boundary_vertices(self):
+        pass
+
+    def boundary_edges(self):
+        pass
