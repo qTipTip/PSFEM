@@ -66,6 +66,20 @@ class Mesh(object):
                 triangle_idx.append(k)
         return triangle_idx
 
+    def adjacent_triangles(self, edge_index):
+        """
+        Return a list of the triangles sharing edge edge_index
+        :param edge_index: edge index
+        :return: list of triangles sharing edge.
+        """
+
+        edge = self.edge_vertices[edge_index]
+        triangle_idx = []
+        for k in range(len(self.triangles)):
+            if edge[0] in self.triangles[k] and edge[1] in self.triangles[k]:
+                triangle_idx.append(k)
+        return triangle_idx
+
     def _generate_data(self):
 
         # unique edges in the mesh
