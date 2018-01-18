@@ -46,7 +46,7 @@ class Mesh(object):
 
     def get_vertex_id(self, vertex):
         for k in range(len(self.vertices)):
-            if vertex == self.vertices[k]
+            if vertex == self.vertices[k]:
                 return k
         return -1
 
