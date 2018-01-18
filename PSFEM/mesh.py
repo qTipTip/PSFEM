@@ -101,6 +101,11 @@ class Mesh(object):
                              for edge in self.bnd_edges
                              for vertex in self.edge_vertices[edge]])))
 
+        self.int_edges = [self.edge_indices[tuple(edge)] for edge in self.edge_vertices
+                          if self.edge_indices[tuple(edge)] not in self.bnd_edges]
+
+        self.int_vertices = [vertex_id for vertex_id in range(len(self.vertices)) if vertex_id not in self.bnd_vertices]
+
 if __name__ == '__main__':
 
     vertices = np.array([
@@ -116,7 +121,3 @@ if __name__ == '__main__':
     ])
 
     M = Mesh(vertices, triangles)
-
-    print(M.edge_vertices)
-    print(M.bnd_edges)
-    print(M.bnd_vertices)

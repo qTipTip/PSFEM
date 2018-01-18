@@ -97,3 +97,32 @@ def test_boundary_data():
     computed_bnd_edges = M.bnd_edges
 
     np.testing.assert_array_almost_equal(computed_bnd_edges, expected_bnd_edges)
+
+def test_interior_data():
+
+    vertices = np.array([
+        [0, 0],
+        [1, 0],
+        [0, 1],
+        [1, 1],
+        [0.5, 0.5]
+    ])
+
+    triangles = np.array([
+        [0, 1, 4],
+        [1, 3, 4],
+        [3, 2, 4],
+        [2, 0, 4]
+    ])
+
+    M = Mesh(vertices, triangles)
+
+    expected_int_vertices = [4]
+    computed_int_vertices = M.int_vertices
+
+    np.testing.assert_array_almost_equal(computed_int_vertices, expected_int_vertices)
+
+    expected_int_edges = [3, 5, 6, 7]
+    computed_int_edges = M.int_edges
+
+    np.testing.assert_array_almost_equal(computed_int_edges, expected_int_edges)
