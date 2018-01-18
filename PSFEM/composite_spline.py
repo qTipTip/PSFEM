@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib
-
+from scipy.spatial import Delaunay
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -24,6 +24,35 @@ class CompositeSpline(object):
         # else, return 0
         else:
             return np.zeros(len(x))
+
+    def __mul__(self, scalar):
+        new_local_representation = {}
+        for k in self.triangles_with_support:
+            new_local_representation[k] = self.local_representation[k] * scalar
+        return CompositeSpline(new_local_representation, self.triangles_with_support, self.mesh)
+
+    def __rmul__(self, scalar):
+        return self.__mul__(scalar)
+
+    def __add__(self, other):
+        new_triangles_with_support = list(set(self.triangles_with_support + other.triangles_with_support))
+        new_local_representation = {}
+
+        for k in self.triangles_with_support:
+            new_local_representation[k] = self.local_representation[k]
+        for k in other.triangles_with_support:
+            if k in new_local_representation.keys():
+                new_local_representation[k] += other.local_representation[k]
+            else:
+                new_local_representation[k] = other.local_representation[k]
+
+        return CompositeSpline(new_local_representation, new_triangles_with_support, self.mesh)
+
+    def __radd__(self, other):
+        if other == 0:
+            return self
+        else:
+            return self.__add__(other)
 
 
 class CompositeSplineSpace(object):
@@ -93,28 +122,30 @@ class CompositeSplineSpace(object):
 
         return CompositeSpline(local_representation, triangles_with_support, self.mesh)
 
+    def function(self, coefficients):
+        """
+        Returns a callable CompositeSpline function.
+        :param coefficients:
+        :return:
+        """
+        return sum([c*b for c, b in zip(coefficients, self.basis)])
+
+
 if __name__ == '__main__':
 
     vertices = np.array([
-        [0, 0],
-        [1, 0],
-        [0, 1],
-        [1, 1],
-        [0.5, 0.5]
+        [x, y]
+        for x in np.linspace(0, 1, 3)
+        for y in np.linspace(0, 1, 3)
     ])
 
-    triangles = np.array([
-        [0, 1, 4],
-        [1, 3, 4],
-        [3, 2, 4],
-        [2, 0, 4]
-    ])
+    triangles = Delaunay(vertices).simplices
 
     M = Mesh(vertices, triangles)
     C = CompositeSplineSpace(M)
 
     points = [sample_triangle(vertices[triangles[k]], 10) for k in range(len(triangles))]
-
+    '''
     for basis in C.basis:
         fig = plt.figure()
         axs = Axes3D(fig)
@@ -124,3 +155,14 @@ if __name__ == '__main__':
             z = basis(p, k)
             axs.plot_trisurf(p[:, 0], p[:, 1], z)
         plt.show()
+    '''
+
+    fig = plt.figure()
+    axs = Axes3D(fig)
+
+    f = C.function(np.random.randint(-1, 2, C.dimension))
+
+    for k, p in enumerate(points):
+        z = f(p, k)
+        axs.plot_trisurf(p[:, 0], p[:, 1], z)
+    plt.show()
