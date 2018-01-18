@@ -31,3 +31,9 @@ class Mesh(object):
 
     def boundary_edges(self):
         pass
+
+    def get_edge(self, edge_id):
+        pass
+
+    def get_vertex(self, vertex_id):
+        pass
