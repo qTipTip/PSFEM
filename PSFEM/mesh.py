@@ -105,19 +105,3 @@ class Mesh(object):
 
         self.edges = self.bnd_edges + self.int_edges
 
-
-if __name__ == '__main__':
-
-    vertices = np.array([
-        [0, 0],
-        [1, 0],
-        [0, 1],
-        [1, 1]
-    ])
-
-    triangles = np.array([
-        [0, 1, 2],
-        [1, 3, 2]
-    ])
-
-    M = Mesh(vertices, triangles)
