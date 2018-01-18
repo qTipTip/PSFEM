@@ -112,7 +112,7 @@ class CompositeSplineSpace(object):
             if edge_idx in self.mesh.int_edges:
                 local_representation[triangles_with_support[1]] *= -1
 
-        return CompositeSpline(local_representation, triangles_with_support, self.mesh)
+        return CompositeSpline(local_representation, triangles_with_support)
 
     def function(self, coefficients):
         """
