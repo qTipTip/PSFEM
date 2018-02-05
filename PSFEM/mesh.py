@@ -124,4 +124,4 @@ class Mesh(object):
             else:
                 continue
 
-        raise IndexError('x does not lie in any of the triangles')
+        return k
