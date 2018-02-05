@@ -1,3 +1,8 @@
+import numpy as np
+
+from PSFEM.mesh import Mesh
+
+
 def local_to_global(vertices, connectivity_matrix):
     """
     Computes the local to global map for the C^1 hermite global basis on PS12-split of a triangulation.
@@ -41,3 +46,19 @@ def local_to_global(vertices, connectivity_matrix):
         local_to_global_map[k] = local_indices
 
     return local_to_global_map, edge_dof_map, vertex_dof_map
+
+
+def unit_square_uniform(n):
+    vertices = np.array([
+        [x, y]
+        for x in np.linspace(0, 1, n)
+        for y in np.linspace(0, 1, n)
+    ])
+
+    triangles = []
+    for i in range(n - 1):
+        for j in range(n - 1):
+            triangles.append([n * j + i, n * j + i + 1, n * j + i + n])
+            triangles.append([n * j + i + 1, n * j + 1 + n + i, n * j + i + n])
+
+    return Mesh(vertices, np.array(triangles))
