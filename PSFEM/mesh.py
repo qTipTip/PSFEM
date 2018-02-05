@@ -21,6 +21,7 @@ class Mesh(object):
         self.triangles = connectivity_matrix
 
         self._generate_data()
+        self._compute_h()
 
     def interior_vertices(self):
         return self.int_vertices
@@ -78,6 +79,21 @@ class Mesh(object):
             if edge[0] in self.triangles[k] and edge[1] in self.triangles[k]:
                 triangle_idx.append(k)
         return triangle_idx
+
+    def _compute_h(self):
+        """
+        Computes the max, min and average triangle side-length in the mesh.
+        """
+
+        edge_lengths = np.zeros(len(self.edges))
+
+        for i, e in enumerate(self.edges):
+            v1, v2 = self.vertices[[e[0], e[1]], :]
+            edge_lengths[i] = np.sqrt((v2[0] - v1[0]) ** 2 + (v2[1] - v1[1]) ** 2)
+
+        self.h_max = max(edge_lengths)
+        self.h_min = max(edge_lengths)
+        self.h_avs = np.mean(edge_lengths)
 
     def _generate_data(self):
 
