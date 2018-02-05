@@ -23,11 +23,11 @@ def solve(a, L, V, verbose=False):
     b = np.zeros(V.dimension)
     c = np.zeros(V.dimension)
 
-    for triangle in tqdm.trange(len(V.mesh.triangles), disable=not verbose):
+    for triangle in tqdm.trange(len(V.mesh.triangles), disable=not verbose, desc='Global assembly'):
         triangle_coords = V.mesh.vertices[V.mesh.triangles[triangle]]
         l2g = V.local_to_global_map[triangle]
         local_basis = V.local_spline_bases[triangle]
-        for j in tqdm.trange(12, leave=False, disable=not verbose):
+        for j in tqdm.trange(12, leave=False, disable=not verbose, desc='Local assembly'):
             for i in range(j + 1):
                 I = midpoint_rule_ps12(a(local_basis[i], local_basis[j]), triangle_coords)
                 A[l2g[i], l2g[j]] += I
