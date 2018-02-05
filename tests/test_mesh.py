@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 from PSFEM.mesh import Mesh
 
@@ -126,3 +125,27 @@ def test_interior_data():
     computed_int_edges = M.int_edges
 
     np.testing.assert_array_almost_equal(computed_int_edges, expected_int_edges)
+
+
+def test_mesh_lengths():
+    vertices = np.array([
+        [0, 0],
+        [1, 0],
+        [0, 1],
+        [1, 1],
+    ])
+
+    triangles = np.array([
+        [0, 1, 2],
+        [1, 3, 2]
+    ])
+
+    M = Mesh(vertices, triangles)
+
+    expected_h_min = 1
+    expected_h_max = np.sqrt(2)
+    expected_h_avg = (4 + np.sqrt(2)) / 5
+
+    np.testing.assert_almost_equal(M.h_min, expected_h_min)
+    np.testing.assert_almost_equal(M.h_max, expected_h_max)
+    np.testing.assert_almost_equal(M.h_avg, expected_h_avg)
