@@ -1,5 +1,7 @@
 import itertools
+
 import numpy as np
+from SSplines.helper_functions import barycentric_coordinates
 
 
 class Mesh(object):
@@ -105,3 +107,21 @@ class Mesh(object):
 
         self.edges = self.bnd_edges + self.int_edges
 
+    def find_triangle(self, x):
+        """
+        Given a point x in the domain of the triangulation, determine for which index i
+        the point x lies in triangle i.
+        :param np.ndarray x: point of interest
+        :return: index i such that x lies in T_i
+        """
+
+        for k, T in enumerate(self.triangles):
+            vertices = self.vertices[T]
+            b = barycentric_coordinates(triangle=vertices, x=x)
+
+            if np.all(b > 0):
+                return k
+            else:
+                continue
+
+        raise IndexError('x does not lie in any of the triangles')
