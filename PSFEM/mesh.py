@@ -136,7 +136,7 @@ class Mesh(object):
             vertices = self.vertices[T]
             b = barycentric_coordinates(triangle=vertices, x=x)
 
-            if np.all(b > 0):
+            if np.all(b >= 0):
                 return k
             else:
                 continue

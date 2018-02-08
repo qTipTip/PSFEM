@@ -9,7 +9,6 @@ class CompositeSpline(object):
         self.local_representation = local_representation
         self.triangles_with_support = triangles_with_support
 
-
     def __call__(self, x, k):
         # if x lies in a supported triangle, evaluate
         if k in self.triangles_with_support:
