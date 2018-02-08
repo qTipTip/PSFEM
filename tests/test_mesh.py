@@ -91,7 +91,6 @@ def test_boundary_data():
 
     np.testing.assert_array_almost_equal(computed_bnd_vertices, expected_bnd_vertices)
 
-
     expected_bnd_edges = [0, 1, 2, 4]
     computed_bnd_edges = M.bnd_edges
 
