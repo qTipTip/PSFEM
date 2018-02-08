@@ -47,6 +47,14 @@ class CompositeSpline(object):
         else:
             return self.__add__(other)
 
+    def lapl(self, x, k):
+        # if x lies in a supported triangle, evaluate
+        if k in self.triangles_with_support:
+            return self.local_representation[k].lapl(x)
+        # else, return 0
+        else:
+            return np.zeros(len(x))
+
 
 class CompositeSplineSpace(object):
 

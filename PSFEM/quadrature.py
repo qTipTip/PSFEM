@@ -1,3 +1,5 @@
+import numpy as np
+import quadpy as quadpy
 from SSplines import area, sub_triangles
 
 
@@ -31,4 +33,16 @@ def midpoint_rule_ps12(integrand, vertices):
     integral = 0
     for sub_triangle in sub_triangles(vertices):
         integral += midpoint_rule(integrand, sub_triangle)
+    return integral
+
+
+def quadpy_full(integrand, vertices):
+    return quadpy.triangle.integrate(integrand, vertices.T, quadpy.triangle.SevenPoint())
+
+
+def quadpy_ps12(integrand, vertices):
+    print('Hello')
+    integral = 0
+    for sub_triangle in sub_triangles(vertices):
+        integral += quadpy.triangle.integrate(integrand, np.array(sub_triangle), quadpy.triangle.SevenPoint())
     return integral

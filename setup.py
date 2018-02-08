@@ -10,6 +10,6 @@ setup(
     author_email='',
     description='A small library for the assembly of finite element solutions using S-splines',
     install_requires=[
-        'SSplines'
+        'SSplines', 'quadpy'
     ]
 )
