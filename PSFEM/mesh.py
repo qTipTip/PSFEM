@@ -124,7 +124,7 @@ class Mesh(object):
 
         self.edges = self.bnd_edges + self.int_edges
 
-    def find_triangle(self, x):
+    def find_triangle(self, x, hint=None):
         """
         Given a point x in the domain of the triangulation, determine for which index i
         the point x lies in triangle i.
@@ -132,9 +132,17 @@ class Mesh(object):
         :return: index i such that x lies in T_i
         """
 
+        # see if the point lies within the hinted triangle.
+        if hint is not None:
+            hint_vertices = self.vertices[self.triangles[hint]]
+            b = barycentric_coordinates(hint_vertices, x)
+
+            if np.all(b >= 0):
+                return hint
+
         for k, T in enumerate(self.triangles):
             vertices = self.vertices[T]
-            b = barycentric_coordinates(triangle=vertices, x=x)
+            b = barycentric_coordinates(vertices, x)
 
             if np.all(b >= 0):
                 return k

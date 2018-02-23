@@ -1,6 +1,6 @@
 import numpy as np
 import quadpy as quadpy
-from SSplines import area, sub_triangles
+from SSplines import area, ps12_sub_triangles, gaussian_quadrature, gaussian_quadrature_data
 
 
 def midpoint_rule(integrand, vertices):
@@ -31,18 +31,33 @@ def midpoint_rule_ps12(integrand, vertices):
     """
 
     integral = 0
-    for sub_triangle in sub_triangles(vertices):
+    for sub_triangle in ps12_sub_triangles(vertices):
         integral += midpoint_rule(integrand, sub_triangle)
     return integral
 
 
-def quadpy_full(integrand, vertices):
-    return quadpy.triangle.integrate(integrand, vertices.T, quadpy.triangle.SevenPoint())
+def gaussian_order_3_ps12(integrand, vertices):
+    i = 0
+    b, w = gaussian_quadrature_data(3)
+    for sub_triangle in ps12_sub_triangles(vertices):
+        i += gaussian_quadrature(sub_triangle, integrand, b, w)
+    return i
 
 
-def quadpy_ps12(integrand, vertices):
-    print('Hello')
+def gaussian_order_2_ps12(integrand, vertices):
+    i = 0
+    b, w = gaussian_quadrature_data(2)
+    for sub_triangle in ps12_sub_triangles(vertices):
+        i += gaussian_quadrature(sub_triangle, integrand, b, w)
+    return i
+
+
+def quadpy_full(integrand, vertices, integration_scheme=quadpy.triangle.SevenPoint()):
+    return quadpy.triangle.integrate(integrand, vertices.T, integration_scheme)
+
+
+def quadpy_ps12(integrand, vertices, integration_scheme=quadpy.triangle.XiaoGimbutas(7)):
     integral = 0
-    for sub_triangle in sub_triangles(vertices):
-        integral += quadpy.triangle.integrate(integrand, np.array(sub_triangle), quadpy.triangle.SevenPoint())
+    for sub_triangle in ps12_sub_triangles(vertices):
+        integral += quadpy.triangle.integrate(integrand, sub_triangle, scheme=integration_scheme)
     return integral

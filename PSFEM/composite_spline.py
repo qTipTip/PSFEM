@@ -5,12 +5,18 @@ from PSFEM.helper_functions import local_to_global
 
 
 class CompositeSpline(object):
-    def __init__(self, local_representation, triangles_with_support):
+    def __init__(self, local_representation, triangles_with_support, mesh):
         self.local_representation = local_representation
         self.triangles_with_support = triangles_with_support
+        self.mesh = mesh
+        self.last_triangle = 0  # last triangle evaluated in
 
-    def __call__(self, x, k):
+    def __call__(self, x, k=None):
+
+        if k is None:
+            k = self.mesh.find_triangle(x, hint=self.last_triangle)
         # if x lies in a supported triangle, evaluate
+        self.last_triangle = k
         if k in self.triangles_with_support:
             return self.local_representation[k](x)
         # else, return 0
@@ -21,7 +27,7 @@ class CompositeSpline(object):
         new_local_representation = {}
         for k in self.triangles_with_support:
             new_local_representation[k] = self.local_representation[k] * scalar
-        return CompositeSpline(new_local_representation, self.triangles_with_support)
+        return CompositeSpline(new_local_representation, self.triangles_with_support, self.mesh)
 
     def __rmul__(self, scalar):
         return self.__mul__(scalar)
@@ -38,7 +44,7 @@ class CompositeSpline(object):
             else:
                 new_local_representation[k] = other.local_representation[k]
 
-        return CompositeSpline(new_local_representation, new_triangles_with_support)
+        return CompositeSpline(new_local_representation, new_triangles_with_support, self.mesh)
 
     def __radd__(self, other):
         if other == 0:
@@ -122,7 +128,7 @@ class CompositeSplineSpace(object):
             if edge_idx in self.mesh.int_edges:
                 local_representation[triangles_with_support[1]] *= -1
 
-        return CompositeSpline(local_representation, triangles_with_support)
+        return CompositeSpline(local_representation, triangles_with_support, self.mesh)
 
     def _construct_interior_and_boundary_dofs(self):
         interior_dofs = []
@@ -150,5 +156,3 @@ class CompositeSplineSpace(object):
         :return:
         """
         return sum([c*b for c, b in zip(coefficients, self.basis)])
-
-
