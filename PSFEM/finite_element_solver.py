@@ -25,20 +25,18 @@ def solve(a, L, V, verbose=False, nprocs=1, integration_method=gaussian_quadratu
     b = np.zeros(V.dimension)
     c = np.zeros(V.dimension)
 
-    B, W = gaussian_quadrature_data(2)
-
     def compute_single_triangle(triangle):
         triangle_coords = V.mesh.vertices[V.mesh.triangles[triangle]]
         l2g = V.local_to_global_map[triangle]
         local_basis = [V.basis[basis_number].local_representation[triangle] for basis_number in l2g]
         for j in tqdm.trange(12, leave=False, disable=not verbose, desc='   Local assembly'):
             for i in range(j + 1):
-                I = integration_method(triangle_coords, a(local_basis[i], local_basis[j]), B, W)
+                I = integration_method(triangle_coords, a(local_basis[i], local_basis[j]), quad_points, quad_weights)
                 A[l2g[i], l2g[j]] += I
                 if i != j:
                     A[l2g[j], l2g[i]] += I
 
-            b[l2g[j]] += integration_method(triangle_coords, L(local_basis[j]), B, W)
+            b[l2g[j]] += integration_method(triangle_coords, L(local_basis[j]), quad_points, quad_weights)
 
     for triangle in tqdm.trange(len(V.mesh.triangles), disable=not verbose, desc='Global assembly'):
         compute_single_triangle(triangle)
