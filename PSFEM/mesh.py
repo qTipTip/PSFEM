@@ -124,29 +124,24 @@ class Mesh(object):
 
         self.edges = self.bnd_edges + self.int_edges
 
-    def find_triangle(self, x, hint=None):
+    def find_triangle(self, point, hint=None):
         """
-        Given a point x in the domain of the triangulation, determine for which index i
-        the point x lies in triangle i.
-        :param np.ndarray x: point of interest
-        :return: index i such that x lies in T_i
+        Given a point, finds the triangle in the mesh which contains it. Optional hint can be supplied to speed
+        up search
+        :param point: point of interest
+        :param hint: optional starting index for search
+        :return: index of triangle containing point p
         """
 
-        # see if the point lies within the hinted triangle.
-        if hint is not None:
-            hint_vertices = self.vertices[self.triangles[hint]]
-            b = barycentric_coordinates(hint_vertices, x)
+        if hint is None:
+            hint = 0
+        n = len(self.triangles)
+        for i in range(hint, n + hint):
+            t = self.triangles[i % n]
+            v = self.vertices[t]
+            b = barycentric_coordinates(v, point)
 
             if np.all(b >= 0):
-                return hint
+                return i % n
 
-        for k, T in enumerate(self.triangles):
-            vertices = self.vertices[T]
-            b = barycentric_coordinates(vertices, x)
-
-            if np.all(b >= 0):
-                return k
-            else:
-                continue
-
-        return k
+        raise IndexError('Triangle not found in Mesh.find_triangle')

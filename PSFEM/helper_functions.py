@@ -51,14 +51,14 @@ def local_to_global(vertices, connectivity_matrix):
 def unit_square_uniform(n):
     vertices = np.array([
         [x, y]
-        for x in np.linspace(0, 1, n)
-        for y in np.linspace(0, 1, n)
+        for x in np.linspace(0, 1, n + 1)
+        for y in np.linspace(0, 1, n + 1)
     ])
 
     triangles = []
-    for i in range(n - 1):
-        for j in range(n - 1):
-            triangles.append([n * j + i, n * j + i + 1, n * j + i + n])
-            triangles.append([n * j + i + 1, n * j + 1 + n + i, n * j + i + n])
+    for i in range(n):
+        for j in range(n):
+            triangles.append([(n + 1) * j + i, (n + 1) * j + i + 1, (n + 1) * j + i + (n + 1)])
+            triangles.append([(n + 1) * j + i + 1, (n + 1) * j + 1 + (n + 1) + i, (n + 1) * j + i + (n + 1)])
 
     return Mesh(vertices, np.array(triangles))
