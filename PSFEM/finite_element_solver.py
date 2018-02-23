@@ -45,4 +45,4 @@ def solve(a, L, V, verbose=False, nprocs=1, integration_method=gaussian_quadratu
     A = sps.csr_matrix(A)
     c[interior_dofs] = spla.spsolve(A[np.ix_(interior_dofs, interior_dofs)], b[interior_dofs])
 
-    return V.function(c)
+    return c
