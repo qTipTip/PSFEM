@@ -71,7 +71,8 @@ class CompositeSplineSpace(object):
 
         self.mesh = mesh
         self.dimension = 3*len(mesh.vertices) + len(mesh.edges)
-        self.local_to_global_map, self.dof_to_edge_map, self.dof_to_vertex_map = local_to_global(mesh.vertices, mesh.triangles)
+        self.local_to_global_map, self.dof_to_edge_map, self.dof_to_vertex_map, self.value_dofs, self.dx_dofs, \
+        self.dy_dofs, self.edge_dofs = local_to_global(mesh.vertices, mesh.triangles)
         self.local_spline_spaces = [SplineSpace(mesh.vertices[triangle], degree=2) for triangle in mesh.triangles]
         self.local_spline_bases = [S.hermite_basis() for S in self.local_spline_spaces]
         self._construct_basis_to_triangle_map()
@@ -135,7 +136,8 @@ class CompositeSplineSpace(object):
         boundary_dofs = []
 
         for dof in self.dof_to_edge_map.keys():
-            if self.dof_to_edge_map[dof] in self.mesh.bnd_edges:
+            edge_id = self.mesh.get_edge_id(self.dof_to_edge_map[dof])
+            if edge_id in self.mesh.bnd_edges:
                 boundary_dofs.append(dof)
             else:
                 interior_dofs.append(dof)

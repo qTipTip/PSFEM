@@ -80,6 +80,12 @@ class Mesh(object):
                 triangle_idx.append(k)
         return triangle_idx
 
+    def boundary_triangles(self):
+        boundary_triangles = []
+        for edge in self.bnd_edges:
+            boundary_triangles.append(self.adjacent_triangles(edge)[0])
+        return list(set(boundary_triangles))
+
     def _compute_h(self):
         """
         Computes the max, min and average triangle side-length in the mesh.

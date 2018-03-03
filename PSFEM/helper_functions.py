@@ -15,6 +15,11 @@ def local_to_global(vertices, connectivity_matrix):
     visited_vertices = {}
     visited_edges = {}
 
+    # the four following lists keep track of which mesh entity correspond to which type of dof
+    value_dofs = {}
+    dx_dofs = {}
+    dy_dofs = {}
+    edge_dofs = {}
     # these two dictionaries map global dof to edge or vertex.
     edge_dof_map = {}
     vertex_dof_map = {}
@@ -29,6 +34,12 @@ def local_to_global(vertices, connectivity_matrix):
             if edge[0] not in visited_vertices:
                 local_indices += [global_dof_number, global_dof_number + 1, global_dof_number + 2]
                 visited_vertices[edge[0]] = [global_dof_number, global_dof_number + 1, global_dof_number + 2]
+
+                value_dofs[edge[0]] = global_dof_number
+                print('added', global_dof_number, 'to list of value dofs')
+                dx_dofs[edge[0]] = global_dof_number + 1
+                dy_dofs[edge[0]] = global_dof_number + 2
+
                 for vertex_dof in visited_vertices[edge[0]]:
                     vertex_dof_map[vertex_dof] = edge[0]
                 global_dof_number += 3
@@ -40,12 +51,13 @@ def local_to_global(vertices, connectivity_matrix):
                 local_indices.append(global_dof_number)
                 visited_edges[oriented_edge] = global_dof_number
                 edge_dof_map[global_dof_number] = oriented_edge
+                edge_dofs[oriented_edge] = global_dof_number
                 global_dof_number += 1
             else:
                 local_indices.append(visited_edges[oriented_edge])
         local_to_global_map[k] = local_indices
-
-    return local_to_global_map, edge_dof_map, vertex_dof_map
+    print(value_dofs)
+    return local_to_global_map, edge_dof_map, vertex_dof_map, value_dofs, dx_dofs, dy_dofs, edge_dofs
 
 
 def unit_square_uniform(n):
