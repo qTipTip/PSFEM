@@ -33,7 +33,6 @@ def project_boundary_function(g, V):
     M = V.mesh
     A = sps.lil_matrix((V.dimension, V.dimension))
     c = np.zeros(V.dimension)
-    coeffs = np.zeros(V.dimension)
     loc2glob = V.local_to_global_map
 
     def integrand(u, v):
@@ -111,7 +110,6 @@ def solve(a, L, V, verbose=False, nprocs=1, aorder=2, border=2, dirichlet=None):
     for triangle in tqdm.trange(len(V.mesh.triangles), disable=not verbose, desc='Global assembly'):
         compute_single_triangle(triangle)
 
-    interior_dofs = V.interior_dofs
     boundary_dofs = V.boundary_dofs
 
     # modify matrix and vector to incorporate boundary conditions
