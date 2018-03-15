@@ -70,7 +70,7 @@ def project_boundary_function(g, V):
                 c[l2g[j]] += np.sum(quadpy.nsimplex.integrate(r_integrand(local_basis[j]), edge_vertices,
                                                               quadpy.nsimplex.GrundmannMoeller(1, 4)))
     A = sps.csr_matrix(A)
-    c = spla.gmres(A, c)  # TODO: This does not work with a direct solver for some reason.
+    c, _info = spla.gmres(A, c)  # TODO: This does not work with a direct solver for some reason.
 
     return c
 
@@ -90,6 +90,9 @@ def solve(a, L, V, verbose=False, nprocs=1, aorder=2, border=2, dirichlet=None):
 
     A = sps.lil_matrix((V.dimension, V.dimension))
     b = np.zeros(V.dimension)
+
+    if dirichlet is None:
+        dirichlet = lambda x: 0
 
     u_boundary_coeff = project_boundary_function(dirichlet, V)
 
