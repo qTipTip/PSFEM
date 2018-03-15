@@ -36,7 +36,6 @@ def local_to_global(vertices, connectivity_matrix):
                 visited_vertices[edge[0]] = [global_dof_number, global_dof_number + 1, global_dof_number + 2]
 
                 value_dofs[edge[0]] = global_dof_number
-                print('added', global_dof_number, 'to list of value dofs')
                 dx_dofs[edge[0]] = global_dof_number + 1
                 dy_dofs[edge[0]] = global_dof_number + 2
 
@@ -56,7 +55,6 @@ def local_to_global(vertices, connectivity_matrix):
             else:
                 local_indices.append(visited_edges[oriented_edge])
         local_to_global_map[k] = local_indices
-    print(value_dofs)
     return local_to_global_map, edge_dof_map, vertex_dof_map, value_dofs, dx_dofs, dy_dofs, edge_dofs
 
 

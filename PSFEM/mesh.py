@@ -130,6 +130,14 @@ class Mesh(object):
 
         self.edges = self.bnd_edges + self.int_edges
 
+    def get_boundary_edges(self, triangle_number):
+        return [edge for edge in self.get_oriented_edges(triangle_number) if self.edge_indices[edge] in self.bnd_edges]
+
+    def get_oriented_edges(self, triangle_number):
+
+        t = self.triangles[triangle_number]
+        return [(t[i], t[(i + 1) % 3]) for i in range(3)]
+
     def find_triangle(self, point, hint=None):
         """
         Given a point, finds the triangle in the mesh which contains it. Optional hint can be supplied to speed

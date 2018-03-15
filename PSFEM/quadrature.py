@@ -56,8 +56,3 @@ def quadpy_full(integrand, vertices, integration_scheme=quadpy.triangle.SevenPoi
     return quadpy.triangle.integrate(integrand, vertices.T, integration_scheme)
 
 
-def quadpy_ps12(integrand, vertices, integration_scheme=quadpy.triangle.XiaoGimbutas(7)):
-    integral = 0
-    for sub_triangle in ps12_sub_triangles(vertices):
-        integral += quadpy.triangle.integrate(integrand, sub_triangle, scheme=integration_scheme)
-    return integral

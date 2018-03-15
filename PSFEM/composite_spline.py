@@ -52,8 +52,10 @@ class CompositeSpline(object):
         else:
             return self.__add__(other)
 
-    def lapl(self, x, k):
+    def lapl(self, x, k=None):
         # if x lies in a supported triangle, evaluate
+        if k is None:
+            k = self.mesh.find_triangle(x, hint=self.last_triangle)
         if k in self.triangles_with_support:
             return self.local_representation[k].lapl(x)
         # else, return 0
