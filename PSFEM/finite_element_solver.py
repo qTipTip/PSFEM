@@ -5,6 +5,8 @@ import scipy.sparse.linalg as spla
 import tqdm
 from SSplines import ps12_sub_triangles
 
+from PSFEM.quadrature import compute_local_matrix_ps12
+
 
 def quadpy_full(integrand, vertices, integration_order=20):
     return quadpy.triangle.integrate(integrand, vertices, scheme=quadpy.triangl.XiaoGimbutas(integration_order))
@@ -94,20 +96,16 @@ def solve(a, L, V, verbose=False, nprocs=1, aorder=2, border=2, dirichlet=None):
 
     u_boundary_coeff = project_boundary_function(dirichlet, V)
 
-    def compute_single_triangle(triangle):
+    for triangle in tqdm.trange(len(V.mesh.triangles), disable=not verbose, desc='Global assembly'):
         triangle_coords = V.mesh.vertices[V.mesh.triangles[triangle]]
         l2g = V.local_to_global_map[triangle]
         local_basis = [V.basis[basis_number].local_representation[triangle] for basis_number in l2g]
-        for j in tqdm.trange(12, leave=False, disable=not verbose, desc='   Local assembly'):
-            for i in range(j + 1):
-                I = quadpy_ps12(a(local_basis[i], local_basis[j]), triangle_coords, integration_order=aorder)
-                A[l2g[i], l2g[j]] += I
-                if i != j:
-                    A[l2g[j], l2g[i]] += I
 
+        local_matrix = compute_local_matrix_ps12(local_basis, triangle_coords, order=aorder)
+        A[np.ix_(l2g, l2g)] += local_matrix
+
+        for j in range(12):
             b[l2g[j]] += quadpy_ps12(L(local_basis[j]), triangle_coords, integration_order=border)
-    for triangle in tqdm.trange(len(V.mesh.triangles), disable=not verbose, desc='Global assembly'):
-        compute_single_triangle(triangle)
 
     boundary_dofs = V.boundary_dofs
 
@@ -119,6 +117,5 @@ def solve(a, L, V, verbose=False, nprocs=1, aorder=2, border=2, dirichlet=None):
 
     A = sps.csr_matrix(A)
     condition_number = np.linalg.cond(A.toarray(), p=None)  # 2-norm condition number
-    c, _info = spla.gmres(A, b)
-    print(condition_number)
+    c = spla.spsolve(A, b)
     return c, condition_number

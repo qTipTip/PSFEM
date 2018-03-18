@@ -64,7 +64,6 @@ def compute_local_matrix(local_basis, triangle, b, w):
     M = np.einsum('...ik,kj...->...ij', m, m.T)
 
     A = np.sum(w[:, None, None] * M, axis=0)
-    A *= area(triangle)
 
     return A
 
@@ -78,9 +77,9 @@ def compute_local_matrix_ps12(local_basis, triangle, order=2):
     :return: 12 x 12 mass matrix
     """
     A = np.zeros((12, 12))
-    b, w = gaussian_quadrature_data(order)
-
+    method = quadpy.triangle.XiaoGimbutas(order)
+    b, w = method.bary, method.weights
     for t in ps12_sub_triangles(triangle):
-        A += compute_local_matrix(local_basis, t, b, w)
+        A += area(t) * compute_local_matrix(local_basis, t, b, w)
 
     return A

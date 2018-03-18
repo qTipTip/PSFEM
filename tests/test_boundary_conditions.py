@@ -42,8 +42,8 @@ def test_boundary_conditions():
     M = PSFEM.unit_square_uniform(1)
     V = PSFEM.CompositeSplineSpace(M)
 
-    c0 = PSFEM.solve(a, L, V, dirichlet=lambda x: 0)
-    c1 = PSFEM.solve(a, L, V, dirichlet=lambda x: 1)
+    c0, cond = PSFEM.solve(a, L, V, dirichlet=lambda x: 0)
+    c1, cond = PSFEM.solve(a, L, V, dirichlet=lambda x: 1)
 
     u0 = V.function(c0)
     u1 = V.function(c1)
