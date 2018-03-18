@@ -29,7 +29,7 @@ def interpolate_boundary_function(g, V):
     return c, bnd_val_dofs
 
 
-def project_boundary_function(g, V):
+def project_boundary_function(g, V, order=8):
     M = V.mesh
     A = sps.lil_matrix((V.dimension, V.dimension))
     c = np.zeros(V.dimension)
@@ -43,7 +43,6 @@ def project_boundary_function(g, V):
 
     visited_dofs = []
     for boundary_triangle in M.boundary_triangles():
-
         l2g = loc2glob[boundary_triangle]
         local_basis = [V.basis[basis_number].local_representation[boundary_triangle] for basis_number in l2g]
         for edge in M.get_boundary_edges(boundary_triangle):
@@ -60,14 +59,14 @@ def project_boundary_function(g, V):
                     if l2g[i] in V.edge_dofs:
                         continue
                     I = np.sum(quadpy.nsimplex.integrate(integrand(local_basis[i], local_basis[j]), edge_vertices,
-                                                         quadpy.nsimplex.GrundmannMoeller(1, 4)))
+                                                         quadpy.nsimplex.GrundmannMoeller(1, order)))
                     A[l2g[i], l2g[j]] += I
 
                     if i != j:
                         A[l2g[j], l2g[i]] += I
                 visited_dofs.append(l2g[j])
                 c[l2g[j]] += np.sum(quadpy.nsimplex.integrate(r_integrand(local_basis[j]), edge_vertices,
-                                                              quadpy.nsimplex.GrundmannMoeller(1, 4)))
+                                                              quadpy.nsimplex.GrundmannMoeller(1, order)))
     A = sps.csr_matrix(A)
     c, _info = spla.gmres(A, c)  # TODO: This does not work with a direct solver for some reason.
 
@@ -119,6 +118,7 @@ def solve(a, L, V, verbose=False, nprocs=1, aorder=2, border=2, dirichlet=None):
         b[boundary_dof] = u_boundary_coeff[boundary_dof]
 
     A = sps.csr_matrix(A)
-    c = spla.spsolve(A, b)
-
-    return c
+    condition_number = np.linalg.cond(A.toarray(), p=None)  # 2-norm condition number
+    c, _info = spla.gmres(A, b)
+    print(condition_number)
+    return c, condition_number

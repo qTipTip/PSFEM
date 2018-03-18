@@ -1,6 +1,7 @@
 import numpy as np
 import quadpy as quadpy
-from SSplines import area, ps12_sub_triangles, gaussian_quadrature, gaussian_quadrature_data
+from SSplines import area, ps12_sub_triangles, gaussian_quadrature, gaussian_quadrature_data, \
+    points_from_barycentric_coordinates
 
 
 def midpoint_rule(integrand, vertices):
@@ -56,3 +57,30 @@ def quadpy_full(integrand, vertices, integration_scheme=quadpy.triangle.SevenPoi
     return quadpy.triangle.integrate(integrand, vertices.T, integration_scheme)
 
 
+def compute_local_matrix(local_basis, triangle, b, w):
+    p = points_from_barycentric_coordinates(triangle, b)
+    m = np.atleast_3d(np.array([b.lapl(p) for b in local_basis]))
+    m = np.swapaxes(m, 0, 1)
+    M = np.einsum('...ik,kj...->...ij', m, m.T)
+
+    A = np.sum(w[:, None, None] * M, axis=0)
+    A *= area(triangle)
+
+    return A
+
+
+def compute_local_matrix_ps12(local_basis, triangle, order=2):
+    """
+    Using a gaussian quadrature rule of given order, compute the local 12x12 matrix for the finite element
+    solver.
+    :param local_basis: set of 12 basis functions
+    :param order: integration order
+    :return: 12 x 12 mass matrix
+    """
+    A = np.zeros((12, 12))
+    b, w = gaussian_quadrature_data(order)
+
+    for t in ps12_sub_triangles(triangle):
+        A += compute_local_matrix(local_basis, t, b, w)
+
+    return A
