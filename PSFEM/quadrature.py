@@ -68,18 +68,41 @@ def compute_local_matrix(local_basis, triangle, b, w):
     return A
 
 
-def compute_local_matrix_ps12(local_basis, triangle, order=2):
+def compute_local_matrix_ps12(local_basis, triangle, b, w):
     """
     Using a gaussian quadrature rule of given order, compute the local 12x12 matrix for the finite element
     solver.
     :param local_basis: set of 12 basis functions
     :param order: integration order
-    :return: 12 x 12 mass matrix
+    :return: 12 x 12 local matrix
     """
     A = np.zeros((12, 12))
-    method = quadpy.triangle.XiaoGimbutas(order)
-    b, w = method.bary, method.weights
     for t in ps12_sub_triangles(triangle):
         A += area(t) * compute_local_matrix(local_basis, t, b, w)
 
+    return A
+
+
+def compute_local_vector(local_basis, func, triangle, b, w):
+    p = points_from_barycentric_coordinates(triangle, b)
+    m = np.atleast_3d(np.array([b(p) for b in local_basis]))
+    m = np.swapaxes(m, 0, 1)
+    f = func(p)
+    M = np.einsum('Bjk,B->Bjk', m, f)
+    A = np.sum(w[:, None, None] * M, axis=0)
+    return A
+
+
+def compute_local_vector_ps12(local_basis, f, triangle, b, w):
+    """
+    Using
+    :param local_basis: set of 12 basis functions
+    :param f: right hand side of strong form
+    :param triangle: vertices of triangle
+    :param order: integration order
+    :return: 12x1 local vector
+    """
+    A = np.zeros((12, 1))
+    for t in ps12_sub_triangles(triangle):
+        A += area(t) * compute_local_vector(local_basis, f, t, b, w)
     return A

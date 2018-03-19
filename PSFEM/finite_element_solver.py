@@ -5,7 +5,7 @@ import scipy.sparse.linalg as spla
 import tqdm
 from SSplines import ps12_sub_triangles
 
-from PSFEM.quadrature import compute_local_matrix_ps12
+from PSFEM.quadrature import compute_local_matrix_ps12, compute_local_vector_ps12
 
 
 def quadpy_full(integrand, vertices, integration_order=20):
@@ -75,7 +75,7 @@ def project_boundary_function(g, V, order=8):
     return c
 
 
-def solve(a, L, V, verbose=False, nprocs=1, aorder=2, border=2, dirichlet=None):
+def solve(a, L, V, verbose=False, nprocs=1, order=2, dirichlet=None, f=None):
     """
     Solves the discrete finite element problem
     Find u in V such that
@@ -88,8 +88,10 @@ def solve(a, L, V, verbose=False, nprocs=1, aorder=2, border=2, dirichlet=None):
     :return: CompositeSpline u satisfying a(u, v) = L(v) for all v in V.
     """
 
+    method = quadpy.triangle.XiaoGimbutas(order)
+    bary, weights = method.bary, method.weights
     A = sps.lil_matrix((V.dimension, V.dimension))
-    b = np.zeros(V.dimension)
+    b = np.zeros((V.dimension, 1))
 
     if dirichlet is None:
         dirichlet = lambda x: 0
@@ -97,16 +99,13 @@ def solve(a, L, V, verbose=False, nprocs=1, aorder=2, border=2, dirichlet=None):
     u_boundary_coeff = project_boundary_function(dirichlet, V)
 
     for triangle in tqdm.trange(len(V.mesh.triangles), disable=not verbose, desc='Global assembly'):
+
         triangle_coords = V.mesh.vertices[V.mesh.triangles[triangle]]
         l2g = V.local_to_global_map[triangle]
         local_basis = [V.basis[basis_number].local_representation[triangle] for basis_number in l2g]
 
-        local_matrix = compute_local_matrix_ps12(local_basis, triangle_coords, order=aorder)
-        A[np.ix_(l2g, l2g)] += local_matrix
-
-        for j in range(12):
-            b[l2g[j]] += quadpy_ps12(L(local_basis[j]), triangle_coords, integration_order=border)
-
+        A[np.ix_(l2g, l2g)] += compute_local_matrix_ps12(local_basis, triangle_coords, bary, weights)
+        b[l2g] += compute_local_vector_ps12(local_basis, f, triangle_coords, bary, weights)
     boundary_dofs = V.boundary_dofs
 
     # modify matrix and vector to incorporate boundary conditions
